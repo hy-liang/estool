@@ -20,7 +20,7 @@ import subprocess
 import sys
 import config
 from model import make_model, simulate
-from es import CMAES, SimpleGA, OpenES, PEPG
+from es import CMAES, OpenES
 import argparse
 import time
 
@@ -71,42 +71,11 @@ def initialize_settings(sigma_init=0.1, sigma_decay=0.9999):
   num_params = model.param_count
   print("size of model", num_params)
 
-  if optimizer == 'ses':
-    ses = PEPG(num_params,
-      sigma_init=sigma_init,
-      sigma_decay=sigma_decay,
-      sigma_alpha=0.2,
-      sigma_limit=0.02,
-      elite_ratio=0.1,
-      weight_decay=0.005,
-      popsize=population)
-    es = ses
-  elif optimizer == 'ga':
-    ga = SimpleGA(num_params,
-      sigma_init=sigma_init,
-      sigma_decay=sigma_decay,
-      sigma_limit=0.02,
-      elite_ratio=0.1,
-      weight_decay=0.005,
-      popsize=population)
-    es = ga
-  elif optimizer == 'cma':
+  if optimizer == 'cma':
     cma = CMAES(num_params,
       sigma_init=sigma_init,
       popsize=population)
     es = cma
-  elif optimizer == 'pepg':
-    pepg = PEPG(num_params,
-      sigma_init=sigma_init,
-      sigma_decay=sigma_decay,
-      sigma_alpha=0.20,
-      sigma_limit=0.02,
-      learning_rate=0.01,
-      learning_rate_decay=1.0,
-      learning_rate_limit=0.01,
-      weight_decay=0.005,
-      popsize=population)
-    es = pepg
   else:
     oes = OpenES(num_params,
       sigma_init=sigma_init,
@@ -129,17 +98,6 @@ def sprint(*args):
   print(args) # if python3, can do print(*args)
   sys.stdout.flush()
 
-class OldSeeder:
-  def __init__(self, init_seed=0):
-    self._seed = init_seed
-  def next_seed(self):
-    result = self._seed
-    self._seed += 1
-    return result
-  def next_batch(self, batch_size):
-    result = np.arange(self._seed, self._seed+batch_size).tolist()
-    self._seed += batch_size
-    return result
 
 class Seeder:
   def __init__(self, init_seed=0):
@@ -424,7 +382,7 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description=('Train policy on OpenAI Gym environment '
                                                 'using pepg, ses, openes, ga, cma'))
   parser.add_argument('gamename', type=str, help='robo_pendulum, robo_ant, robo_humanoid, etc.')
-  parser.add_argument('-o', '--optimizer', type=str, help='ses, pepg, openes, ga, cma.', default='cma')
+  parser.add_argument('-o', '--optimizer', type=str, help='ses, pepg, openes, ga, cma.', default='es')
   parser.add_argument('-e', '--num_episode', type=int, default=1, help='num episodes per trial')
   parser.add_argument('--eval_steps', type=int, default=25, help='evaluate every eval_steps step')
   parser.add_argument('-n', '--num_worker', type=int, default=8)

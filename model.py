@@ -2,7 +2,7 @@ import numpy as np
 import random
 # I implemented Schmidhuber's "Compressed Network Search" but didn't use it.
 # ndded for the compress/decompress functions.
-#from scipy.fftpack import dct
+from scipy.fftpack import dct
 import json
 import sys
 import config
